@@ -109,6 +109,18 @@ body > footer {
     text-align: center;
 }
 
+.visitor-counter {
+    display: inline-flex;
+    gap: 0.4rem;
+    margin-bottom: 0;
+}
+
+.visitor-counter__value {
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
 /* Header and contact links */
 body > a[href="#main-content"] {
     position: fixed;
