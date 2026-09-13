@@ -17,12 +17,13 @@
         countElement.textContent = text;
     };
 
-    const getVisitorCount = async () => {
+    const incrementVisitorCount = async () => {
         const controller = new AbortController();
         const timeoutId = window.setTimeout(() => controller.abort(), requestTimeoutMilliseconds);
 
         try {
             const response = await fetch(endpoint, {
+                method: 'POST',
                 headers: {
                     Accept: 'application/json',
                 },
@@ -48,5 +49,5 @@
     };
 
     setCountText('Loading…');
-    void getVisitorCount();
+    void incrementVisitorCount();
 })();
