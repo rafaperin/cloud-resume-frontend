@@ -35,6 +35,8 @@ jobs:
           test -f js/visitor-counter.js
           test -f .well-known/security.txt
           test -f .well-known/pgp-key.txt
+          test -f robots.txt
+          test -f sitemap.xml
           test -f assets/og-card.png
 
       - name: Verify published OpenPGP encryption key
@@ -77,6 +79,23 @@ jobs:
 
           cmp "$expected_payload" "$signed_payload"
 
+      - name: Verify crawl-discovery documents
+        run: |
+          grep --fixed-strings --quiet 'User-agent: *' robots.txt
+          grep --fixed-strings --quiet 'Allow: /' robots.txt
+          grep --fixed-strings --quiet 'Disallow: /cdn-cgi/' robots.txt
+          grep --fixed-strings --quiet 'Sitemap: https://resume.perinzaum.space/sitemap.xml' robots.txt
+          grep --fixed-strings --quiet '<loc>https://resume.perinzaum.space/</loc>' sitemap.xml
+
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ElementTree
+
+          namespace = {'sitemap': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          root = ElementTree.parse('sitemap.xml').getroot()
+          locations = [element.text for element in root.findall('sitemap:url/sitemap:loc', namespace)]
+          assert locations == ['https://resume.perinzaum.space/'], locations
+          PY
+
       - name: Verify social-card dimensions
         run: |
           python3 - <<'PY'
@@ -102,6 +121,8 @@ jobs:
           mkdir -p _site
           cp index.html _site/
           cp 404.html _site/
+          cp robots.txt _site/
+          cp sitemap.xml _site/
           cp -R css _site/
           cp -R js _site/
 
@@ -130,6 +151,8 @@ jobs:
 
           curl --fail --silent --show-error http://localhost:8000/
           curl --fail --silent --show-error http://localhost:8000/404.html
+          curl --fail --silent --show-error http://localhost:8000/robots.txt
+          curl --fail --silent --show-error http://localhost:8000/sitemap.xml
           curl --fail --silent --show-error http://localhost:8000/css/style.css
           curl --fail --silent --show-error http://localhost:8000/js/theme-toggle.js
           curl --fail --silent --show-error http://localhost:8000/js/visitor-counter.js
@@ -167,6 +190,8 @@ jobs:
           mkdir -p _site
           cp index.html _site/
           cp 404.html _site/
+          cp robots.txt _site/
+          cp sitemap.xml _site/
           cp -R css _site/
           cp -R js _site/
 
@@ -189,20 +214,25 @@ jobs:
             --container '$web' \
             --delete-destination true
 
-      - name: Set security-contact content types
+      - name: Set static-file content types
         env:
           STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
         run: |
-          for blob_name in .well-known/security.txt .well-known/pgp-key.txt; do
+          set_content_type() {
             az storage blob update \
               --account-name "$STORAGE_ACCOUNT" \
               --auth-mode login \
               --container-name '$web' \
-              --name "$blob_name" \
-              --content-type 'text/plain; charset=utf-8' \
+              --name "$1" \
+              --content-type "$2" \
               --only-show-errors \
               --output none
-          done
+          }
+
+          set_content_type .well-known/security.txt 'text/plain; charset=utf-8'
+          set_content_type .well-known/pgp-key.txt 'text/plain; charset=utf-8'
+          set_content_type robots.txt 'text/plain; charset=utf-8'
+          set_content_type sitemap.xml 'application/xml; charset=utf-8'
 
       - name: Purge deployed files from Cloudflare
         env:
@@ -256,6 +286,32 @@ jobs:
             --retry 5 \
             --retry-delay 5 \
             "${PUBLIC_SITE_URL}/js/visitor-counter.js"
+
+          robots_headers=$(mktemp)
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+            --retry 5 \
+            --retry-delay 5 \
+            --dump-header "$robots_headers" \
+            --output /dev/null \
+            "${PUBLIC_SITE_URL}/robots.txt"
+          grep --ignore-case --quiet '^content-type: text/plain' "$robots_headers"
+
+          sitemap_headers=$(mktemp)
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+            --retry 5 \
+            --retry-delay 5 \
+            --dump-header "$sitemap_headers" \
+            --output /dev/null \
+            "${PUBLIC_SITE_URL}/sitemap.xml"
+          grep --ignore-case --quiet '^content-type: application/xml' "$sitemap_headers"
 
           security_txt_headers=$(mktemp)
           curl \
