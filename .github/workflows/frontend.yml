@@ -154,6 +154,7 @@ jobs:
             --fail \
             --silent \
             --show-error \
+            --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
             --retry 5 \
             --retry-delay 5 \
             "${PUBLIC_SITE_URL}/"
@@ -162,6 +163,7 @@ jobs:
             --fail \
             --silent \
             --show-error \
+            --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
             --retry 5 \
             --retry-delay 5 \
             "${PUBLIC_SITE_URL}/js/visitor-counter.js"
