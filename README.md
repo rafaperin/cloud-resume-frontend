@@ -48,4 +48,4 @@ See [FRONTEND_STANDARDS.md](FRONTEND_STANDARDS.md) for accessibility, responsive
 
 ## CI/CD
 
-Pull requests validate the required static files, JavaScript syntax, and a local HTTP preview. A push to `main` deploys only staged site files to the Azure Storage `$web` container through GitHub OIDC, purges the affected Cloudflare cache entries, and smoke-tests the public site. Azure infrastructure and the deployment identity are managed by the [backend repository](https://github.com/rafaperin/cloud-resume-backend).
+Pull requests validate the required static files, JavaScript syntax, and a local HTTP preview. A push to `main` synchronizes only staged site files to the Azure Storage `$web` container through GitHub OIDC and deletes stale blobs, then purges affected Cloudflare cache entries and smoke-tests the public site. Azure infrastructure and the deployment identity are managed by the [backend repository](https://github.com/rafaperin/cloud-resume-backend).

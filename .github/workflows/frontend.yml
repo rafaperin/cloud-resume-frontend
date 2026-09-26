@@ -104,16 +104,16 @@ jobs:
             cp -R assets _site/
           fi
 
-      - name: Upload frontend to Azure Storage
+      - name: Synchronize frontend to Azure Storage
         env:
           STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
         run: |
-          az storage blob upload-batch \
+          az storage blob sync \
             --account-name "$STORAGE_ACCOUNT" \
             --auth-mode login \
-            --destination '$web' \
             --source _site \
-            --overwrite true
+            --container '$web' \
+            --delete-destination true
 
       - name: Purge deployed files from Cloudflare
         env:
