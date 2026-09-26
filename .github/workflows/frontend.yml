@@ -44,6 +44,39 @@ jobs:
           test "$primary_fingerprint" = "BC0A79687E6739099C01A99B5358B878D8052940"
           printf '%s\n' "$key_metadata" | awk -F: '$1 == "sub" && index($12, "e") { found = 1 } END { exit !found }'
 
+      - name: Verify signed security contact
+        run: |
+          verification_home=$(mktemp -d)
+          signed_payload=$(mktemp)
+          expected_payload=$(mktemp)
+
+          cleanup() {
+            rm -rf "$verification_home" "$signed_payload" "$expected_payload"
+          }
+
+          trap cleanup EXIT
+
+          gpg --batch --homedir "$verification_home" --import .well-known/pgp-key.txt >/dev/null 2>&1
+          gpg --batch --homedir "$verification_home" --status-fd 1 --verify .well-known/security.txt 2>/dev/null | \
+            awk '$2 == "VALIDSIG" { print $3; exit }' | \
+            grep --fixed-strings --quiet 'BC0A79687E6739099C01A99B5358B878D8052940'
+          awk '
+            /^-----BEGIN PGP SIGNED MESSAGE-----$/ { message_started = 1; next }
+            message_started && /^$/ { cleartext_started = 1; next }
+            cleartext_started && /^-----BEGIN PGP SIGNATURE-----$/ { exit }
+            cleartext_started { print }
+          ' .well-known/security.txt > "$signed_payload"
+
+          cat > "$expected_payload" <<'EOF'
+          Contact: mailto:perinzaum@proton.me
+          Encryption: https://resume.perinzaum.space/.well-known/pgp-key.txt
+          Expires: 2027-06-30T23:59:59Z
+          Preferred-Languages: en, pt-BR
+          Canonical: https://resume.perinzaum.space/.well-known/security.txt
+          EOF
+
+          cmp "$expected_payload" "$signed_payload"
+
       - name: Verify social-card dimensions
         run: |
           python3 - <<'PY'
@@ -249,4 +282,24 @@ jobs:
             "${PUBLIC_SITE_URL}/.well-known/pgp-key.txt"
           gpg --batch --with-colons --import-options show-only --import "$pgp_key_file" | \
             awk -F: '$1 == "fpr" { print $10; exit }' | \
+            grep --fixed-strings --quiet 'BC0A79687E6739099C01A99B5358B878D8052940'
+
+          signed_security_file=$(mktemp)
+          verification_home=$(mktemp -d)
+          cleanup() {
+            rm -rf "$pgp_key_file" "$signed_security_file" "$verification_home"
+          }
+          trap cleanup EXIT
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+            --retry 5 \
+            --retry-delay 5 \
+            --output "$signed_security_file" \
+            "${PUBLIC_SITE_URL}/.well-known/security.txt"
+          gpg --batch --homedir "$verification_home" --import "$pgp_key_file" >/dev/null 2>&1
+          gpg --batch --homedir "$verification_home" --status-fd 1 --verify "$signed_security_file" 2>/dev/null | \
+            awk '$2 == "VALIDSIG" { print $3; exit }' | \
             grep --fixed-strings --quiet 'BC0A79687E6739099C01A99B5358B878D8052940'

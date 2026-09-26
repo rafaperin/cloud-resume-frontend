@@ -1,5 +1,15 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
 Contact: mailto:perinzaum@proton.me
 Encryption: https://resume.perinzaum.space/.well-known/pgp-key.txt
 Expires: 2027-06-30T23:59:59Z
 Preferred-Languages: en, pt-BR
 Canonical: https://resume.perinzaum.space/.well-known/security.txt
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYIAB0WIQS8Cnlofmc5CZwBqZtTWLh42AUpQAUCarg82wAKCRBTWLh42AUp
+QPSsAPsGRmfziEGRKllEaTjcnvHYmfue5ps1HgGwzI+D0+ZUuQEA1wXV4x14y3rJ
+clw+4sl61Gj8l+9Hd/HkbyQknanMhg8=
+=mxE7
+-----END PGP SIGNATURE-----
