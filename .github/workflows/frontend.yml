@@ -34,6 +34,22 @@ jobs:
           test -f js/theme-toggle.js
           test -f js/visitor-counter.js
           test -f .well-known/security.txt
+          test -f assets/og-card.png
+
+      - name: Verify social-card dimensions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import struct
+
+          with Path('assets/og-card.png').open('rb') as image:
+              assert image.read(8) == b'\x89PNG\r\n\x1a\n'
+              assert image.read(4) == struct.pack('>I', 13)
+              assert image.read(4) == b'IHDR'
+              width, height = struct.unpack('>II', image.read(8))
+
+          assert (width, height) == (1200, 630), (width, height)
+          PY
 
       - name: Validate JavaScript syntax
         run: |
@@ -77,6 +93,7 @@ jobs:
           curl --fail --silent --show-error http://localhost:8000/js/theme-toggle.js
           curl --fail --silent --show-error http://localhost:8000/js/visitor-counter.js
           curl --fail --silent --show-error http://localhost:8000/.well-known/security.txt
+          curl --fail --silent --show-error http://localhost:8000/assets/og-card.png
 
   deploy:
     name: Deploy frontend
