@@ -31,10 +31,13 @@ jobs:
           test -f index.html
           test -f 404.html
           test -f css/style.css
+          test -f js/theme-toggle.js
           test -f js/visitor-counter.js
 
       - name: Validate JavaScript syntax
-        run: node --check js/visitor-counter.js
+        run: |
+          node --check js/theme-toggle.js
+          node --check js/visitor-counter.js
 
       - name: Prepare static site
         run: |
@@ -66,6 +69,7 @@ jobs:
           curl --fail --silent --show-error http://localhost:8000/
           curl --fail --silent --show-error http://localhost:8000/404.html
           curl --fail --silent --show-error http://localhost:8000/css/style.css
+          curl --fail --silent --show-error http://localhost:8000/js/theme-toggle.js
           curl --fail --silent --show-error http://localhost:8000/js/visitor-counter.js
 
   deploy:
