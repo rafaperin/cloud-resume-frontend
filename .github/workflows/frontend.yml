@@ -129,6 +129,19 @@ jobs:
             --container '$web' \
             --delete-destination true
 
+      - name: Set security.txt content type
+        env:
+          STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
+        run: |
+          az storage blob update \
+            --account-name "$STORAGE_ACCOUNT" \
+            --auth-mode login \
+            --container-name '$web' \
+            --name '.well-known/security.txt' \
+            --content-type 'text/plain; charset=utf-8' \
+            --only-show-errors \
+            --output none
+
       - name: Purge deployed files from Cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
