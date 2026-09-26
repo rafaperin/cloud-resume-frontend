@@ -33,6 +33,7 @@ jobs:
           test -f css/style.css
           test -f js/theme-toggle.js
           test -f js/visitor-counter.js
+          test -f .well-known/security.txt
 
       - name: Validate JavaScript syntax
         run: |
@@ -49,6 +50,10 @@ jobs:
 
           if [ -d assets ]; then
             cp -R assets _site/
+          fi
+
+          if [ -d .well-known ]; then
+            cp -R .well-known _site/
           fi
 
       - name: Smoke test locally
@@ -71,6 +76,7 @@ jobs:
           curl --fail --silent --show-error http://localhost:8000/css/style.css
           curl --fail --silent --show-error http://localhost:8000/js/theme-toggle.js
           curl --fail --silent --show-error http://localhost:8000/js/visitor-counter.js
+          curl --fail --silent --show-error http://localhost:8000/.well-known/security.txt
 
   deploy:
     name: Deploy frontend
@@ -106,6 +112,10 @@ jobs:
 
           if [ -d assets ]; then
             cp -R assets _site/
+          fi
+
+          if [ -d .well-known ]; then
+            cp -R .well-known _site/
           fi
 
       - name: Synchronize frontend to Azure Storage
@@ -171,3 +181,16 @@ jobs:
             --retry 5 \
             --retry-delay 5 \
             "${PUBLIC_SITE_URL}/js/visitor-counter.js"
+
+          security_txt_headers=$(mktemp)
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+            --retry 5 \
+            --retry-delay 5 \
+            --dump-header "$security_txt_headers" \
+            --output /dev/null \
+            "${PUBLIC_SITE_URL}/.well-known/security.txt"
+          grep --ignore-case --quiet '^content-type: text/plain; charset=utf-8' "$security_txt_headers"
