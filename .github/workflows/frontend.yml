@@ -1,0 +1,167 @@
+name: Frontend CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Verify required files
+        run: |
+          test -f index.html
+          test -f 404.html
+          test -f css/style.css
+          test -f js/visitor-counter.js
+
+      - name: Validate JavaScript syntax
+        run: node --check js/visitor-counter.js
+
+      - name: Prepare static site
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp 404.html _site/
+          cp -R css _site/
+          cp -R js _site/
+
+          if [ -d assets ]; then
+            cp -R assets _site/
+          fi
+
+      - name: Smoke test locally
+        shell: bash
+        run: |
+          python3 -m http.server 8000 \
+            --directory _site \
+            >/tmp/frontend-server.log 2>&1 &
+          server_pid=$!
+
+          cleanup() {
+            kill "$server_pid" || true
+          }
+
+          trap cleanup EXIT
+          sleep 1
+
+          curl --fail --silent --show-error http://localhost:8000/
+          curl --fail --silent --show-error http://localhost:8000/404.html
+          curl --fail --silent --show-error http://localhost:8000/css/style.css
+          curl --fail --silent --show-error http://localhost:8000/js/visitor-counter.js
+
+  deploy:
+    name: Deploy frontend
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - validate
+    concurrency:
+      group: frontend-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Log in to Azure with OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Prepare static site
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp 404.html _site/
+          cp -R css _site/
+          cp -R js _site/
+
+          if [ -d assets ]; then
+            cp -R assets _site/
+          fi
+
+      - name: Upload frontend to Azure Storage
+        env:
+          STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
+        run: |
+          az storage blob upload-batch \
+            --account-name "$STORAGE_ACCOUNT" \
+            --auth-mode login \
+            --destination '$web' \
+            --source _site \
+            --overwrite true
+
+      - name: Purge deployed files from Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+        shell: bash
+        run: |
+          python3 - <<'PY' > purge.json
+          import json
+          import os
+          from pathlib import Path
+
+          base_url = os.environ['PUBLIC_SITE_URL'].rstrip('/')
+          urls = [f'{base_url}/']
+
+          for path in Path('_site').rglob('*'):
+              if path.is_file():
+                  relative = path.relative_to('_site').as_posix()
+                  urls.append(f'{base_url}/{relative}')
+
+          print(json.dumps({'files': urls}))
+          PY
+
+          curl \
+            --fail-with-body \
+            --request POST \
+            "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            --header 'Content-Type: application/json' \
+            --data @purge.json
+
+      - name: Smoke test public website
+        env:
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+        run: |
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --retry 5 \
+            --retry-delay 5 \
+            "${PUBLIC_SITE_URL}/"
+
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --retry 5 \
+            --retry-delay 5 \
+            "${PUBLIC_SITE_URL}/js/visitor-counter.js"

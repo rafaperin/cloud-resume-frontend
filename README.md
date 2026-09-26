@@ -45,3 +45,7 @@ Open `http://localhost:8000` in a browser. The visitor-counter request requires 
 ## Standards
 
 See [FRONTEND_STANDARDS.md](FRONTEND_STANDARDS.md) for accessibility, responsive design, JavaScript safety, and review expectations.
+
+## CI/CD
+
+Pull requests validate the required static files, JavaScript syntax, and a local HTTP preview. A push to `main` deploys only staged site files to the Azure Storage `$web` container through GitHub OIDC, purges the affected Cloudflare cache entries, and smoke-tests the public site. Azure infrastructure and the deployment identity are managed by the [backend repository](https://github.com/rafaperin/cloud-resume-backend).
