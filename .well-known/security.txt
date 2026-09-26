@@ -1,4 +1,5 @@
 Contact: mailto:perinzaum@proton.me
+Encryption: https://resume.perinzaum.space/.well-known/pgp-key.txt
 Expires: 2027-06-30T23:59:59Z
 Preferred-Languages: en, pt-BR
 Canonical: https://resume.perinzaum.space/.well-known/security.txt

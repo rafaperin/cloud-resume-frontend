@@ -34,7 +34,15 @@ jobs:
           test -f js/theme-toggle.js
           test -f js/visitor-counter.js
           test -f .well-known/security.txt
+          test -f .well-known/pgp-key.txt
           test -f assets/og-card.png
+
+      - name: Verify published OpenPGP encryption key
+        run: |
+          key_metadata=$(gpg --batch --with-colons --import-options show-only --import .well-known/pgp-key.txt)
+          primary_fingerprint=$(printf '%s\n' "$key_metadata" | awk -F: '$1 == "fpr" { print $10; exit }')
+          test "$primary_fingerprint" = "BC0A79687E6739099C01A99B5358B878D8052940"
+          printf '%s\n' "$key_metadata" | awk -F: '$1 == "sub" && index($12, "e") { found = 1 } END { exit !found }'
 
       - name: Verify social-card dimensions
         run: |
@@ -93,6 +101,8 @@ jobs:
           curl --fail --silent --show-error http://localhost:8000/js/theme-toggle.js
           curl --fail --silent --show-error http://localhost:8000/js/visitor-counter.js
           curl --fail --silent --show-error http://localhost:8000/.well-known/security.txt
+          curl --fail --silent --show-error http://localhost:8000/.well-known/pgp-key.txt | \
+            gpg --batch --with-colons --import-options show-only --import
           curl --fail --silent --show-error http://localhost:8000/assets/og-card.png
 
   deploy:
@@ -146,18 +156,20 @@ jobs:
             --container '$web' \
             --delete-destination true
 
-      - name: Set security.txt content type
+      - name: Set security-contact content types
         env:
           STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
         run: |
-          az storage blob update \
-            --account-name "$STORAGE_ACCOUNT" \
-            --auth-mode login \
-            --container-name '$web' \
-            --name '.well-known/security.txt' \
-            --content-type 'text/plain; charset=utf-8' \
-            --only-show-errors \
-            --output none
+          for blob_name in .well-known/security.txt .well-known/pgp-key.txt; do
+            az storage blob update \
+              --account-name "$STORAGE_ACCOUNT" \
+              --auth-mode login \
+              --container-name '$web' \
+              --name "$blob_name" \
+              --content-type 'text/plain; charset=utf-8' \
+              --only-show-errors \
+              --output none
+          done
 
       - name: Purge deployed files from Cloudflare
         env:
@@ -224,3 +236,17 @@ jobs:
             --output /dev/null \
             "${PUBLIC_SITE_URL}/.well-known/security.txt"
           grep --ignore-case --quiet '^content-type: text/plain; charset=utf-8' "$security_txt_headers"
+
+          pgp_key_file=$(mktemp)
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+            --retry 5 \
+            --retry-delay 5 \
+            --output "$pgp_key_file" \
+            "${PUBLIC_SITE_URL}/.well-known/pgp-key.txt"
+          gpg --batch --with-colons --import-options show-only --import "$pgp_key_file" | \
+            awk -F: '$1 == "fpr" { print $10; exit }' | \
+            grep --fixed-strings --quiet 'BC0A79687E6739099C01A99B5358B878D8052940'
