@@ -214,7 +214,7 @@ jobs:
             --container '$web' \
             --delete-destination true
 
-      - name: Set static-file content types
+      - name: Set static-file response metadata
         env:
           STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
         run: |
@@ -233,6 +233,18 @@ jobs:
           set_content_type .well-known/pgp-key.txt 'text/plain; charset=utf-8'
           set_content_type robots.txt 'text/plain; charset=utf-8'
           set_content_type sitemap.xml 'application/xml; charset=utf-8'
+
+          for blob_name in index.html 404.html; do
+            az storage blob update \
+              --account-name "$STORAGE_ACCOUNT" \
+              --auth-mode login \
+              --container-name '$web' \
+              --name "$blob_name" \
+              --content-type 'text/html; charset=utf-8' \
+              --content-cache-control 'no-transform' \
+              --only-show-errors \
+              --output none
+          done
 
       - name: Purge deployed files from Cloudflare
         env:
@@ -286,6 +298,21 @@ jobs:
             --retry 5 \
             --retry-delay 5 \
             "${PUBLIC_SITE_URL}/js/visitor-counter.js"
+
+          for page_path in / /404.html; do
+            html_headers=$(mktemp)
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+              --retry 5 \
+              --retry-delay 5 \
+              --dump-header "$html_headers" \
+              --output /dev/null \
+              "${PUBLIC_SITE_URL}${page_path}"
+            grep --ignore-case --quiet '^cache-control: no-transform' "$html_headers"
+          done
 
           robots_headers=$(mktemp)
           curl \
