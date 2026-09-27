@@ -48,4 +48,14 @@ See [FRONTEND_STANDARDS.md](FRONTEND_STANDARDS.md) for accessibility, responsive
 
 ## CI/CD
 
-Pull requests validate the required static files, JavaScript syntax, and a local HTTP preview. A push to `main` synchronizes only staged site files to the Azure Storage `$web` container through GitHub OIDC and deletes stale blobs, then purges affected Cloudflare cache entries and smoke-tests the public site. Azure infrastructure and the deployment identity are managed by the [backend repository](https://github.com/rafaperin/cloud-resume-backend).
+Pull requests validate the required static files, JavaScript syntax, and a local HTTP preview. A push to `main` synchronizes only staged site files to the Azure Storage `$web` container through GitHub OIDC and deletes stale blobs, configures the Cloudflare `Link` header that advertises the Markdown resume, `llms.txt`, and ARD manifest, then purges affected cache entries and smoke-tests the public site. Azure infrastructure and the deployment identity are managed by the [backend repository](https://github.com/rafaperin/cloud-resume-backend).
+
+## Content-use policy
+
+`robots.txt` permits search indexing and AI use at query time, while declining model training:
+
+```text
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+```
+
+The deployment maintains a Cloudflare Response Header Transform Rule with the `Link` relations for `resume.md`, `llms.txt`, and `/.well-known/ard.json`. The `CLOUDFLARE_API_TOKEN` repository secret must have **Transform Rules: Edit** and the existing cache-purge permission for this step.
