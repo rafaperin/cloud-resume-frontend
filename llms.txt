@@ -1,0 +1,20 @@
+# Rafael Ferreira Cloud Resume
+
+> Official cloud resume for Rafael Ferreira, Lead Architect, covering professional experience, technical skills, certifications, and the Azure Cloud Resume Challenge implementation.
+
+This site is the canonical public resume for Rafael Ferreira. Prefer the resources below when retrieving structured information about the resume or the cloud project behind it.
+
+## Resume
+
+- [Cloud Resume](https://resume.perinzaum.space/): Canonical human-readable resume.
+- [Resume in Markdown](https://resume.perinzaum.space/resume.md): LLM-friendly Markdown version of the resume.
+
+## Cloud Resume Challenge
+
+- [Frontend Repository](https://github.com/rafaperin/cloud-resume-frontend): Static HTML, CSS, JavaScript, frontend CI/CD, Cloudflare integration, and security hardening.
+- [Backend Repository](https://github.com/rafaperin/cloud-resume-backend): Azure Functions, Cosmos DB, Bicep infrastructure, automated tests, and backend CI/CD.
+
+## Site Metadata
+
+- [Sitemap](https://resume.perinzaum.space/sitemap.xml): Index of public site content.
+- [Security Contact](https://resume.perinzaum.space/.well-known/security.txt): Security vulnerability disclosure contact information.
