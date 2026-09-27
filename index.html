@@ -6,7 +6,9 @@
     <meta name="description" content="Cloud resume for Rafael Ferreira, MIT Innovator Under 35 and Lead Architect specializing in Python, FastAPI, AWS, and Azure.">
     <title>Rafael Ferreira | Lead Architect</title>
     <link rel="canonical" href="https://resume.perinzaum.space/">
-    <link rel="alternate" type="text/markdown" href="https://resume.perinzaum.space/resume.md">
+    <link rel="alternate" type="text/markdown" hreflang="en" href="https://resume.perinzaum.space/resume.md">
+    <link rel="alternate" type="text/markdown" hreflang="pt-BR" href="https://resume.perinzaum.space/resume.pt-BR.md">
+    <link rel="alternate" type="text/markdown" hreflang="es" href="https://resume.perinzaum.space/resume.es.md">
     <link rel="describedby" href="https://resume.perinzaum.space/llms.txt">
     <link rel="ard" href="https://resume.perinzaum.space/.well-known/ard.json">
     <meta property="og:title" content="Rafael Ferreira | Lead Architect">
@@ -24,197 +26,145 @@
     <meta name="twitter:image" content="https://resume.perinzaum.space/assets/og-card.png">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/theme-toggle.js" defer></script>
+    <script src="js/language-selector.js" defer></script>
     <script src="js/visitor-counter.js" defer></script>
 </head>
 <body>
-    <a href="#main-content">Skip to main content</a>
+    <a href="#main-content" data-i18n="skipToMain">Skip to main content</a>
 
     <header>
         <h1>Rafael Ferreira</h1>
-        <p>MIT Innovator Under 35 | Lead Architect at NTT DATA</p>
+        <p data-i18n="headline">MIT Innovator Under 35 | Lead Architect at NTT DATA</p>
         <p>São Paulo, São Paulo, Brazil</p>
 
         <address>
             <ul>
                 <li><a href="mailto:rafaelpfer@hotmail.com">rafaelpfer@hotmail.com</a></li>
-                <li>
-                    <a href="https://www.linkedin.com/in/rafaperin" target="_blank" rel="noopener noreferrer">
-                        LinkedIn profile
-                    </a>
-                </li>
-                <li>
-                    <a href="https://github.com/rafaperin" target="_blank" rel="noopener noreferrer">
-                        GitHub profile
-                    </a>
-                </li>
+                <li><a href="https://www.linkedin.com/in/rafaperin" target="_blank" rel="noopener noreferrer" data-i18n="linkedinProfile">LinkedIn profile</a></li>
+                <li><a href="https://github.com/rafaperin" target="_blank" rel="noopener noreferrer" data-i18n="githubProfile">GitHub profile</a></li>
             </ul>
         </address>
 
-        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
-            <span class="theme-toggle__icon" data-theme-toggle-icon aria-hidden="true">☾</span>
-            <span class="theme-toggle__label" data-theme-toggle-label>Dark mode</span>
-        </button>
+        <div class="site-controls">
+            <label class="language-selector">
+                <span data-i18n="languageSelectorLabel">Language</span>
+                <select data-language-selector aria-label="Choose language">
+                    <option value="en">English</option>
+                    <option value="pt-BR">Português</option>
+                    <option value="es">Español</option>
+                </select>
+            </label>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+                <span class="theme-toggle__icon" data-theme-toggle-icon aria-hidden="true">☾</span>
+                <span class="theme-toggle__label" data-theme-toggle-label>Dark mode</span>
+            </button>
+        </div>
     </header>
 
-    <nav aria-label="Resume sections">
+    <nav aria-label="Resume sections" data-i18n-aria-label="resumeSections">
         <ul>
-            <li><a href="#summary">Summary</a></li>
-            <li><a href="#skills">Skills</a></li>
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#education">Education</a></li>
-            <li><a href="#certifications">Certifications</a></li>
-            <li><a href="#languages">Languages</a></li>
+            <li><a href="#summary" data-i18n="summary">Summary</a></li>
+            <li><a href="#skills" data-i18n="skills">Skills</a></li>
+            <li><a href="#experience" data-i18n="experience">Experience</a></li>
+            <li><a href="#projects" data-i18n="projects">Projects</a></li>
+            <li><a href="#education" data-i18n="education">Education</a></li>
+            <li><a href="#certifications" data-i18n="certifications">Certifications</a></li>
+            <li><a href="#languages" data-i18n="languages">Languages</a></li>
         </ul>
     </nav>
 
     <main id="main-content">
         <section id="summary" aria-labelledby="summary-heading">
-            <h2 id="summary-heading">Summary</h2>
-            <p>
-                Passionate software engineer and cloud architect with extensive experience
-                building scalable backend systems using Python, FastAPI, AWS, and Azure.
-                Proven ability to lead engineering teams while remaining deeply involved in
-                hands-on development. Recognized as an MIT Innovator Under 35 for pioneering
-                work in spatial computing. Committed to writing clean, efficient code and
-                delivering robust solutions in high-impact environments.
-            </p>
+            <h2 id="summary-heading" data-i18n="summary">Summary</h2>
+            <p data-i18n="summaryBody">Passionate software engineer and cloud architect with extensive experience building scalable backend systems using Python, FastAPI, AWS, and Azure. Proven ability to lead engineering teams while remaining deeply involved in hands-on development. Recognized as an MIT Innovator Under 35 for pioneering work in spatial computing. Committed to writing clean, efficient code and delivering robust solutions in high-impact environments.</p>
         </section>
 
         <section id="skills" aria-labelledby="skills-heading">
-            <h2 id="skills-heading">Skills</h2>
+            <h2 id="skills-heading" data-i18n="skills">Skills</h2>
             <ul>
-                <li>Continuous Integration and Continuous Delivery (CI/CD)</li>
-                <li>Software Architecture</li>
-                <li>Cloud Infrastructure</li>
+                <li data-i18n="skillCiCd">Continuous Integration and Continuous Delivery (CI/CD)</li>
+                <li data-i18n="skillArchitecture">Software Architecture</li>
+                <li data-i18n="skillCloud">Cloud Infrastructure</li>
             </ul>
         </section>
 
         <section id="experience" aria-labelledby="experience-heading">
-            <h2 id="experience-heading">Experience</h2>
-
+            <h2 id="experience-heading" data-i18n="experience">Experience</h2>
             <article>
                 <header>
-                    <h3>Lead Architect</h3>
+                    <h3 data-i18n="leadArchitect">Lead Architect</h3>
                     <p>NTT DATA Europe &amp; Latam</p>
-                    <p>
-                        <time datetime="2018-04">April 2018</time>–Present
-                        <span aria-hidden="true"> · </span>
-                        São Paulo Area, Brazil
-                    </p>
+                    <p><time datetime="2018-04" data-i18n="experienceDates">April 2018–Present</time><span aria-hidden="true"> · </span><span data-i18n="saoPauloArea">São Paulo Area, Brazil</span></p>
                 </header>
-
-                <p>Lead Architect of Spatial Web at Innovation Center Brazil's team.</p>
-
-                <h4>Tech stack</h4>
+                <p data-i18n="experienceIntro">Lead Architect of Spatial Web at Innovation Center Brazil's team.</p>
+                <h4 data-i18n="techStack">Tech stack</h4>
                 <ul>
-                    <li>Python</li>
-                    <li>FastAPI</li>
-                    <li>AWS</li>
-                    <li>Azure</li>
-                    <li>Docker</li>
-                    <li>PostgreSQL</li>
-                    <li>REST APIs</li>
-                    <li>CI/CD</li>
-                    <li>Git</li>
+                    <li>Python</li><li>FastAPI</li><li>AWS</li><li>Azure</li><li>Docker</li><li>PostgreSQL</li><li>REST APIs</li><li>CI/CD</li><li>Git</li>
                 </ul>
-
-                <p>
-                    As Lead Architect in the Innovation Center Brazil team, I design and
-                    implement scalable backend systems and cloud-native solutions using
-                    Python, FastAPI, Docker, AWS, and Azure. I lead multidisciplinary teams
-                    in the development of spatial computing platforms, combining AR/VR
-                    technologies with Artificial Intelligence and Open Gateway to deliver
-                    immersive user experiences.
-                </p>
-                <p>
-                    I collaborate closely with stakeholders to translate business needs into
-                    robust technical architectures, drive R&amp;D initiatives, and mentor
-                    engineers and college students. My work emphasizes clean software design,
-                    performance, and cloud scalability while fostering innovation and
-                    continuous learning within the team.
-                </p>
+                <p data-i18n="experienceBodyOne">As Lead Architect in the Innovation Center Brazil team, I design and implement scalable backend systems and cloud-native solutions using Python, FastAPI, Docker, AWS, and Azure. I lead multidisciplinary teams in the development of spatial computing platforms, combining AR/VR technologies with Artificial Intelligence and Open Gateway to deliver immersive user experiences.</p>
+                <p data-i18n="experienceBodyTwo">I collaborate closely with stakeholders to translate business needs into robust technical architectures, drive R&amp;D initiatives, and mentor engineers and college students. My work emphasizes clean software design, performance, and cloud scalability while fostering innovation and continuous learning within the team.</p>
             </article>
         </section>
 
         <section id="projects" aria-labelledby="projects-heading">
-            <h2 id="projects-heading">Projects</h2>
-
+            <h2 id="projects-heading" data-i18n="projects">Projects</h2>
             <article>
-                <h3>Azure Cloud Resume Challenge</h3>
-                <p>In progress</p>
-                <p>
-                    This website is an evolving cloud resume built to demonstrate frontend
-                    development, Python backend engineering, automated testing, infrastructure
-                    as code, and cloud deployment on Azure. The project follows Clean
-                    Architecture and clean coding standards so each feature can be developed,
-                    tested, and deployed independently.
-                </p>
-
-                <h4>Project milestones</h4>
+                <h3 data-i18n="cloudResumeChallenge">Azure Cloud Resume Challenge</h3>
+                <p data-i18n="completed">Completed</p>
+                <p data-i18n="projectBody">This website is an evolving cloud resume built to demonstrate frontend development, Python backend engineering, automated testing, infrastructure as code, and cloud deployment on Azure. The project follows Clean Architecture and clean coding standards so each feature can be developed, tested, and deployed independently.</p>
+                <h4 data-i18n="projectMilestones">Project milestones</h4>
                 <ul>
-                    <li>Completed: semantic, accessible, responsive cloud resume</li>
-                    <li>Completed: Azure Storage static website hosting</li>
-                    <li>Completed: custom domain, HTTPS, and CDN through Cloudflare</li>
-                    <li>Completed: JavaScript visitor counter backed by Azure Functions and Cosmos DB</li>
-                    <li>Completed: automated Python tests with coverage enforcement</li>
-                    <li>Completed: Azure infrastructure defined with Bicep</li>
-                    <li>Completed: backend CI/CD using GitHub Actions and OIDC</li>
-                    <li>In progress: automated frontend deployment and CDN cache invalidation</li>
+                    <li data-i18n="milestoneResume">Completed: semantic, accessible, responsive cloud resume</li>
+                    <li data-i18n="milestoneStorage">Completed: Azure Storage static website hosting</li>
+                    <li data-i18n="milestoneDomain">Completed: custom domain, HTTPS, and CDN through Cloudflare</li>
+                    <li data-i18n="milestoneCounter">Completed: JavaScript visitor counter backed by Azure Functions and Cosmos DB</li>
+                    <li data-i18n="milestoneTests">Completed: automated Python tests with coverage enforcement</li>
+                    <li data-i18n="milestoneBicep">Completed: Azure infrastructure defined with Bicep</li>
+                    <li data-i18n="milestoneBackendCi">Completed: backend CI/CD using GitHub Actions and OIDC</li>
+                    <li data-i18n="milestoneFrontendCi">Completed: frontend CI/CD with Cloudflare cache invalidation</li>
                 </ul>
             </article>
         </section>
 
         <section id="education" aria-labelledby="education-heading">
-            <h2 id="education-heading">Education</h2>
-
+            <h2 id="education-heading" data-i18n="education">Education</h2>
             <article>
-                <h3>Postgraduate Degree in Software Architecture</h3>
+                <h3 data-i18n="postgraduate">Postgraduate Degree in Software Architecture</h3>
                 <p>FIAP</p>
-                <p>
-                    <time datetime="2023-03">March 2023</time>–<time datetime="2024-03">March 2024</time>
-                </p>
+                <p><time datetime="2023-03" data-i18n="postgraduateDates">March 2023–March 2024</time></p>
             </article>
-
             <article>
-                <h3>Bachelor's Degree in Information Systems</h3>
+                <h3 data-i18n="bachelors">Bachelor's Degree in Information Systems</h3>
                 <p>FIAP</p>
-                <p><time datetime="2014">2014</time>–<time datetime="2017">2017</time></p>
+                <p><time datetime="2014" data-i18n="bachelorsDates">2014–2017</time></p>
             </article>
         </section>
 
         <section id="certifications" aria-labelledby="certifications-heading">
-            <h2 id="certifications-heading">Certifications</h2>
+            <h2 id="certifications-heading" data-i18n="certifications">Certifications</h2>
             <ul>
                 <li>OpenAI Technical Practitioner</li>
-                <li>EF SET Spanish Certificate — 58/100 (B2 Upper Intermediate)</li>
+                <li data-i18n="spanishCertificate">EF SET Spanish Certificate — 58/100 (B2 Upper Intermediate)</li>
                 <li>Professional Scrum Master I</li>
                 <li>TOEFL ITP — 633/677</li>
-                <li>EF SET English Certificate — 76/100 (C2 Proficient)</li>
+                <li data-i18n="englishCertificate">EF SET English Certificate — 76/100 (C2 Proficient)</li>
             </ul>
         </section>
 
         <section id="languages" aria-labelledby="languages-heading">
-            <h2 id="languages-heading">Languages</h2>
+            <h2 id="languages-heading" data-i18n="languages">Languages</h2>
             <dl>
-                <dt>Portuguese</dt>
-                <dd>Native or bilingual proficiency</dd>
-                <dt>English</dt>
-                <dd>Native or bilingual proficiency</dd>
-                <dt>Spanish</dt>
-                <dd>Professional working proficiency</dd>
+                <dt data-i18n="portuguese">Portuguese</dt><dd data-i18n="nativeProficiency">Native or bilingual proficiency</dd>
+                <dt data-i18n="english">English</dt><dd data-i18n="nativeProficiency">Native or bilingual proficiency</dd>
+                <dt data-i18n="spanish">Spanish</dt><dd data-i18n="professionalProficiency">Professional working proficiency</dd>
             </dl>
         </section>
     </main>
 
     <footer>
-        <p>Thank you for visiting my cloud resume.</p>
-        <p
-            class="visitor-counter"
-            data-visitor-counter
-            data-visitor-counter-endpoint="https://func-cr-dev-eus2-umtut7udacl.azurewebsites.net/api/visitor"
-        >
-            <span>Visitor count:</span>
+        <p data-i18n="footerThanks">Thank you for visiting my cloud resume.</p>
+        <p class="visitor-counter" data-visitor-counter data-visitor-counter-endpoint="https://func-cr-dev-eus2-umtut7udacl.azurewebsites.net/api/visitor">
+            <span data-i18n="visitorCount">Visitor count:</span>
             <output class="visitor-counter__value" aria-live="polite">Loading</output>
         </p>
     </footer>

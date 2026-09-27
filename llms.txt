@@ -7,7 +7,9 @@ This site is the canonical public resume for Rafael Ferreira. Prefer the resourc
 ## Resume
 
 - [Cloud Resume](https://resume.perinzaum.space/): Canonical human-readable resume.
-- [Resume in Markdown](https://resume.perinzaum.space/resume.md): LLM-friendly Markdown version of the resume.
+- [Resume in Markdown — English](https://resume.perinzaum.space/resume.md): LLM-friendly English version of the resume.
+- [Resume in Markdown — Portuguese](https://resume.perinzaum.space/resume.pt-BR.md): Portuguese version of the resume.
+- [Resume in Markdown — Spanish](https://resume.perinzaum.space/resume.es.md): Spanish version of the resume.
 
 ## Cloud Resume Challenge
 

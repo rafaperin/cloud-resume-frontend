@@ -36,6 +36,8 @@ I collaborate closely with stakeholders to translate business needs into robust 
 
 ### Azure Cloud Resume Challenge
 
+**Completed**
+
 This evolving cloud resume demonstrates frontend development, Python backend engineering, automated testing, infrastructure as code, and cloud deployment on Azure. The project follows Clean Architecture and clean coding standards so each feature can be developed, tested, and deployed independently.
 
 - Semantic, accessible, responsive cloud resume

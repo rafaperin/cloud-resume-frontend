@@ -1,6 +1,14 @@
 (() => {
     const requestTimeoutMilliseconds = 5_000;
     const counterElement = document.querySelector('[data-visitor-counter]');
+    const counterLabels = {
+        en: { loading: 'Loading…', unavailable: 'Unavailable' },
+        'pt-BR': { loading: 'Carregando…', unavailable: 'Indisponível' },
+        es: { loading: 'Cargando…', unavailable: 'No disponible' },
+    };
+    let locale = document.documentElement.lang;
+    let count = null;
+    let state = 'loading';
 
     if (!counterElement) {
         return;
@@ -13,8 +21,9 @@
         return;
     }
 
-    const setCountText = (text) => {
-        countElement.textContent = text;
+    const renderCount = () => {
+        const labels = counterLabels[locale] ?? counterLabels.en;
+        countElement.textContent = count === null ? labels[state] : count.toLocaleString(locale);
     };
 
     const incrementVisitorCount = async () => {
@@ -24,9 +33,7 @@
         try {
             const response = await fetch(endpoint, {
                 method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                },
+                headers: { Accept: 'application/json' },
                 signal: controller.signal,
             });
 
@@ -40,14 +47,20 @@
                 throw new Error('Visitor counter response contained an invalid count.');
             }
 
-            setCountText(data.count.toLocaleString());
+            count = data.count;
         } catch {
-            setCountText('Unavailable');
+            state = 'unavailable';
         } finally {
             window.clearTimeout(timeoutId);
+            renderCount();
         }
     };
 
-    setCountText('Loading…');
+    window.addEventListener('cloudresumelanguagechange', (event) => {
+        locale = event.detail.locale;
+        renderCount();
+    });
+
+    renderCount();
     void incrementVisitorCount();
 })();
