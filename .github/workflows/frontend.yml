@@ -39,6 +39,10 @@ jobs:
           test -f sitemap.xml
           test -f llms.txt
           test -f resume.md
+          test -f resume.pt-BR.md
+          test -f resume.es.md
+          test -f CONTENT_STANDARDS.md
+          test -f js/language-selector.js
           test -f .well-known/ard.json
           test -f .well-known/ai-catalog.json
           test -f scripts/configure_cloudflare_link_headers.py
@@ -106,8 +110,12 @@ jobs:
         run: |
           grep --fixed-strings --quiet '# Rafael Ferreira Cloud Resume' llms.txt
           grep --fixed-strings --quiet '[Cloud Resume](https://resume.perinzaum.space/)' llms.txt
-          grep --fixed-strings --quiet '[Resume in Markdown](https://resume.perinzaum.space/resume.md)' llms.txt
+          grep --fixed-strings --quiet '[Resume in Markdown — English](https://resume.perinzaum.space/resume.md)' llms.txt
           grep --fixed-strings --quiet '# Rafael Ferreira' resume.md
+          grep --fixed-strings --quiet '# Rafael Ferreira' resume.pt-BR.md
+          grep --fixed-strings --quiet '# Rafael Ferreira' resume.es.md
+          grep --fixed-strings --quiet 'Resume in Markdown — Portuguese' llms.txt
+          grep --fixed-strings --quiet 'Resume in Markdown — Spanish' llms.txt
 
           python3 - <<'PY'
           import json
@@ -134,12 +142,48 @@ jobs:
           parser = LinkParser()
           parser.feed(Path('index.html').read_text(encoding='utf-8'))
           expected_links = (
-              {'rel': 'alternate', 'type': 'text/markdown', 'href': 'https://resume.perinzaum.space/resume.md'},
+              {'rel': 'alternate', 'type': 'text/markdown', 'hreflang': 'en', 'href': 'https://resume.perinzaum.space/resume.md'},
+              {'rel': 'alternate', 'type': 'text/markdown', 'hreflang': 'pt-BR', 'href': 'https://resume.perinzaum.space/resume.pt-BR.md'},
+              {'rel': 'alternate', 'type': 'text/markdown', 'hreflang': 'es', 'href': 'https://resume.perinzaum.space/resume.es.md'},
               {'rel': 'describedby', 'href': 'https://resume.perinzaum.space/llms.txt'},
               {'rel': 'ard', 'href': 'https://resume.perinzaum.space/.well-known/ard.json'},
           )
           for expected_link in expected_links:
               assert expected_link in parser.links, expected_link
+
+          PY
+
+      - name: Verify localized resume content
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import re
+
+          class TranslationKeyParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.keys = set()
+
+              def handle_starttag(self, tag, attrs):
+                  for name, value in attrs:
+                      if name in {'data-i18n', 'data-i18n-aria-label'}:
+                          self.keys.add(value)
+
+          parser = TranslationKeyParser()
+          parser.feed(Path('index.html').read_text(encoding='utf-8'))
+          source = Path('js/language-selector.js').read_text(encoding='utf-8')
+
+          for locale in ('en', "'pt-BR'", 'es'):
+              start = source.index(f'        {locale}: {{')
+              end = source.find('\n        },', start)
+              locale_source = source[start:end]
+              missing = sorted(
+                  key
+                  for key in parser.keys
+                  if not re.search(rf'(?<![\w]){re.escape(key)}:', locale_source)
+              )
+              assert not missing, (locale, missing)
           PY
 
       - name: Verify social-card dimensions
@@ -160,6 +204,7 @@ jobs:
       - name: Validate JavaScript syntax
         run: |
           node --check js/theme-toggle.js
+          node --check js/language-selector.js
           node --check js/visitor-counter.js
           python3 -m py_compile scripts/configure_cloudflare_link_headers.py
 
@@ -172,6 +217,8 @@ jobs:
           cp sitemap.xml _site/
           cp llms.txt _site/
           cp resume.md _site/
+          cp resume.pt-BR.md _site/
+          cp resume.es.md _site/
           cp -R css _site/
           cp -R js _site/
 
@@ -204,10 +251,13 @@ jobs:
           curl --fail --silent --show-error http://localhost:8000/sitemap.xml
           curl --fail --silent --show-error http://localhost:8000/llms.txt
           curl --fail --silent --show-error http://localhost:8000/resume.md
+          curl --fail --silent --show-error http://localhost:8000/resume.pt-BR.md
+          curl --fail --silent --show-error http://localhost:8000/resume.es.md
           curl --fail --silent --show-error http://localhost:8000/.well-known/ard.json
           curl --fail --silent --show-error http://localhost:8000/.well-known/ai-catalog.json
           curl --fail --silent --show-error http://localhost:8000/css/style.css
           curl --fail --silent --show-error http://localhost:8000/js/theme-toggle.js
+          curl --fail --silent --show-error http://localhost:8000/js/language-selector.js
           curl --fail --silent --show-error http://localhost:8000/js/visitor-counter.js
           curl --fail --silent --show-error http://localhost:8000/.well-known/security.txt
           curl --fail --silent --show-error http://localhost:8000/.well-known/pgp-key.txt | \
@@ -247,6 +297,8 @@ jobs:
           cp sitemap.xml _site/
           cp llms.txt _site/
           cp resume.md _site/
+          cp resume.pt-BR.md _site/
+          cp resume.es.md _site/
           cp -R css _site/
           cp -R js _site/
 
@@ -290,6 +342,8 @@ jobs:
           set_content_type sitemap.xml 'application/xml; charset=utf-8'
           set_content_type llms.txt 'text/plain; charset=utf-8'
           set_content_type resume.md 'text/markdown; charset=utf-8'
+          set_content_type resume.pt-BR.md 'text/markdown; charset=utf-8'
+          set_content_type resume.es.md 'text/markdown; charset=utf-8'
           set_content_type .well-known/ard.json 'application/json'
           set_content_type .well-known/ai-catalog.json 'application/json'
 
@@ -389,6 +443,18 @@ jobs:
             "${PUBLIC_SITE_URL}/resume.md"
           grep --fixed-strings --quiet '# Rafael Ferreira' "$resume_file"
 
+          for localized_resume in resume.pt-BR.md resume.es.md; do
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+              --retry 5 \
+              --retry-delay 5 \
+              "${PUBLIC_SITE_URL}/${localized_resume}" | \
+              grep --fixed-strings --quiet '# Rafael Ferreira'
+          done
+
           for manifest_path in /.well-known/ard.json /.well-known/ai-catalog.json; do
             manifest_file=$(mktemp)
             curl \
@@ -441,6 +507,8 @@ jobs:
 
           assert_content_type /llms.txt 'text/plain; charset=utf-8'
           assert_content_type /resume.md 'text/markdown; charset=utf-8'
+          assert_content_type /resume.pt-BR.md 'text/markdown; charset=utf-8'
+          assert_content_type /resume.es.md 'text/markdown; charset=utf-8'
           assert_content_type /.well-known/ard.json 'application/json'
           assert_content_type /.well-known/ai-catalog.json 'application/json'
 

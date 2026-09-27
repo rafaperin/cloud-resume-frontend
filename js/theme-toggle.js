@@ -1,6 +1,12 @@
 (() => {
     const themeStorageKey = 'cloud-resume-theme';
     const themeToggle = document.querySelector('[data-theme-toggle]');
+    const themeLabels = {
+        en: { dark: 'Dark mode', light: 'Light mode', darkAction: 'Switch to dark mode', lightAction: 'Switch to light mode' },
+        'pt-BR': { dark: 'Modo escuro', light: 'Modo claro', darkAction: 'Mudar para o modo escuro', lightAction: 'Mudar para o modo claro' },
+        es: { dark: 'Modo oscuro', light: 'Modo claro', darkAction: 'Cambiar al modo oscuro', lightAction: 'Cambiar al modo claro' },
+    };
+    let locale = document.documentElement.lang;
 
     if (!themeToggle) {
         return;
@@ -21,13 +27,14 @@
 
     const setTheme = (theme, savePreference) => {
         const isDarkTheme = theme === 'dark';
+        const labels = themeLabels[locale] ?? themeLabels.en;
 
         document.documentElement.dataset.theme = theme;
         themeToggle.setAttribute('aria-pressed', String(isDarkTheme));
-        themeToggle.setAttribute('aria-label', isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode');
+        themeToggle.setAttribute('aria-label', isDarkTheme ? labels.lightAction : labels.darkAction);
 
         if (themeToggleLabel) {
-            themeToggleLabel.textContent = isDarkTheme ? 'Light mode' : 'Dark mode';
+            themeToggleLabel.textContent = isDarkTheme ? labels.light : labels.dark;
         }
 
         if (themeToggleIcon) {
@@ -48,5 +55,10 @@
     themeToggle.addEventListener('click', () => {
         const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
         setTheme(nextTheme, true);
+    });
+
+    window.addEventListener('cloudresumelanguagechange', (event) => {
+        locale = event.detail.locale;
+        setTheme(document.documentElement.dataset.theme, false);
     });
 })();

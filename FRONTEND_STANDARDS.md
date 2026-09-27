@@ -9,7 +9,7 @@ These standards apply to the static resume site in `frontend/`.
 - Give every meaningful image useful `alt` text; use empty `alt` only for decorative images.
 - Associate each form control with a visible `label`, make all controls keyboard-accessible, and use native elements before adding ARIA.
 - Set the document language, viewport metadata, descriptive title, and concise meta description.
-- Link CSS in `css/style.css` and JavaScript in `js/visitor-counter.js` using `defer`. Do not add inline styles or inline event handlers.
+- Link CSS in `css/style.css` and JavaScript in `js/` using `defer`. Do not add inline styles or inline event handlers.
 
 ## CSS
 

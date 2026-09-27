@@ -27,9 +27,15 @@ Python, Azure Functions, tests, and Bicep infrastructure belong in [cloud-resume
 ├── css/
 │   └── style.css
 ├── js/
+│   ├── language-selector.js
+│   ├── theme-toggle.js
 │   └── visitor-counter.js
+├── CONTENT_STANDARDS.md
 ├── 404.html
-└── index.html
+├── index.html
+├── resume.es.md
+├── resume.md
+└── resume.pt-BR.md
 ```
 
 ## Local preview
@@ -44,11 +50,15 @@ Open `http://localhost:8000` in a browser. The visitor-counter request requires 
 
 ## Standards
 
-See [FRONTEND_STANDARDS.md](FRONTEND_STANDARDS.md) for accessibility, responsive design, JavaScript safety, and review expectations.
+See [FRONTEND_STANDARDS.md](FRONTEND_STANDARDS.md) for accessibility, responsive design, JavaScript safety, and review expectations. See [CONTENT_STANDARDS.md](CONTENT_STANDARDS.md) for synchronized content and localization requirements.
 
 ## CI/CD
 
 Pull requests validate the required static files, JavaScript syntax, and a local HTTP preview. A push to `main` synchronizes only staged site files to the Azure Storage `$web` container through GitHub OIDC and deletes stale blobs, configures the Cloudflare `Link` header that advertises the Markdown resume, `llms.txt`, and ARD manifest, then purges affected cache entries and smoke-tests the public site. Azure infrastructure and the deployment identity are managed by the [backend repository](https://github.com/rafaperin/cloud-resume-backend).
+
+## Languages
+
+The language selector provides the resume in English, Portuguese, and Spanish, remembers a visitor’s selection locally, and updates page metadata and dynamic control labels. The same content is available to non-browser consumers in [English](resume.md), [Portuguese](resume.pt-BR.md), and [Spanish](resume.es.md) Markdown.
 
 ## Content-use policy
 
