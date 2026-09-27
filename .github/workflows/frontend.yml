@@ -37,6 +37,10 @@ jobs:
           test -f .well-known/pgp-key.txt
           test -f robots.txt
           test -f sitemap.xml
+          test -f llms.txt
+          test -f resume.md
+          test -f .well-known/ard.json
+          test -f .well-known/ai-catalog.json
           test -f assets/og-card.png
 
       - name: Verify published OpenPGP encryption key
@@ -96,6 +100,46 @@ jobs:
           assert locations == ['https://resume.perinzaum.space/'], locations
           PY
 
+      - name: Verify AI discovery documents
+        run: |
+          grep --fixed-strings --quiet '# Rafael Ferreira Cloud Resume' llms.txt
+          grep --fixed-strings --quiet '[Cloud Resume](https://resume.perinzaum.space/)' llms.txt
+          grep --fixed-strings --quiet '[Resume in Markdown](https://resume.perinzaum.space/resume.md)' llms.txt
+          grep --fixed-strings --quiet '# Rafael Ferreira' resume.md
+
+          python3 - <<'PY'
+          import json
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          manifest_paths = (
+              Path('.well-known/ard.json'),
+              Path('.well-known/ai-catalog.json'),
+          )
+          manifests = [json.loads(path.read_text(encoding='utf-8')) for path in manifest_paths]
+          assert manifests == [{'entries': []}, {'entries': []}]
+          assert manifest_paths[0].read_text(encoding='utf-8') == manifest_paths[1].read_text(encoding='utf-8')
+
+          class LinkParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.links = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'link':
+                      self.links.append(dict(attrs))
+
+          parser = LinkParser()
+          parser.feed(Path('index.html').read_text(encoding='utf-8'))
+          expected_links = (
+              {'rel': 'alternate', 'type': 'text/markdown', 'href': 'https://resume.perinzaum.space/resume.md'},
+              {'rel': 'describedby', 'href': 'https://resume.perinzaum.space/llms.txt'},
+              {'rel': 'ard', 'href': 'https://resume.perinzaum.space/.well-known/ard.json'},
+          )
+          for expected_link in expected_links:
+              assert expected_link in parser.links, expected_link
+          PY
+
       - name: Verify social-card dimensions
         run: |
           python3 - <<'PY'
@@ -123,6 +167,8 @@ jobs:
           cp 404.html _site/
           cp robots.txt _site/
           cp sitemap.xml _site/
+          cp llms.txt _site/
+          cp resume.md _site/
           cp -R css _site/
           cp -R js _site/
 
@@ -153,6 +199,10 @@ jobs:
           curl --fail --silent --show-error http://localhost:8000/404.html
           curl --fail --silent --show-error http://localhost:8000/robots.txt
           curl --fail --silent --show-error http://localhost:8000/sitemap.xml
+          curl --fail --silent --show-error http://localhost:8000/llms.txt
+          curl --fail --silent --show-error http://localhost:8000/resume.md
+          curl --fail --silent --show-error http://localhost:8000/.well-known/ard.json
+          curl --fail --silent --show-error http://localhost:8000/.well-known/ai-catalog.json
           curl --fail --silent --show-error http://localhost:8000/css/style.css
           curl --fail --silent --show-error http://localhost:8000/js/theme-toggle.js
           curl --fail --silent --show-error http://localhost:8000/js/visitor-counter.js
@@ -192,6 +242,8 @@ jobs:
           cp 404.html _site/
           cp robots.txt _site/
           cp sitemap.xml _site/
+          cp llms.txt _site/
+          cp resume.md _site/
           cp -R css _site/
           cp -R js _site/
 
@@ -233,6 +285,10 @@ jobs:
           set_content_type .well-known/pgp-key.txt 'text/plain; charset=utf-8'
           set_content_type robots.txt 'text/plain; charset=utf-8'
           set_content_type sitemap.xml 'application/xml; charset=utf-8'
+          set_content_type llms.txt 'text/plain; charset=utf-8'
+          set_content_type resume.md 'text/markdown; charset=utf-8'
+          set_content_type .well-known/ard.json 'application/json'
+          set_content_type .well-known/ai-catalog.json 'application/json'
 
           for blob_name in index.html 404.html; do
             az storage blob update \
@@ -298,6 +354,70 @@ jobs:
             --retry 5 \
             --retry-delay 5 \
             "${PUBLIC_SITE_URL}/js/visitor-counter.js"
+
+          llms_file=$(mktemp)
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+            --retry 5 \
+            --retry-delay 5 \
+            --output "$llms_file" \
+            "${PUBLIC_SITE_URL}/llms.txt"
+          grep --fixed-strings --quiet '# Rafael Ferreira Cloud Resume' "$llms_file"
+
+          resume_file=$(mktemp)
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+            --retry 5 \
+            --retry-delay 5 \
+            --output "$resume_file" \
+            "${PUBLIC_SITE_URL}/resume.md"
+          grep --fixed-strings --quiet '# Rafael Ferreira' "$resume_file"
+
+          for manifest_path in /.well-known/ard.json /.well-known/ai-catalog.json; do
+            manifest_file=$(mktemp)
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+              --retry 5 \
+              --retry-delay 5 \
+              --output "$manifest_file" \
+              "${PUBLIC_SITE_URL}${manifest_path}"
+            python3 - "$manifest_file" <<'PY'
+          import json
+          import sys
+
+          with open(sys.argv[1], encoding='utf-8') as file:
+              assert json.load(file) == {'entries': []}
+          PY
+          done
+
+          assert_content_type() {
+            response_headers=$(mktemp)
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              --user-agent 'Mozilla/5.0 (compatible; CloudResumeDeploymentCheck/1.0)' \
+              --retry 5 \
+              --retry-delay 5 \
+              --dump-header "$response_headers" \
+              --output /dev/null \
+              "${PUBLIC_SITE_URL}$1"
+            grep --ignore-case --quiet "^content-type: $2" "$response_headers"
+          }
+
+          assert_content_type /llms.txt 'text/plain; charset=utf-8'
+          assert_content_type /resume.md 'text/markdown; charset=utf-8'
+          assert_content_type /.well-known/ard.json 'application/json'
+          assert_content_type /.well-known/ai-catalog.json 'application/json'
 
           for page_path in / /404.html; do
             html_headers=$(mktemp)
